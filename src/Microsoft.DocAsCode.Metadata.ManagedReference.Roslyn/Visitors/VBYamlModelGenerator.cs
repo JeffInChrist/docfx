@@ -1299,6 +1299,12 @@ namespace Microsoft.DocAsCode.Metadata.ManagedReference
                     SyntaxKind.NothingLiteralExpression,
                     SyntaxFactory.Token(SyntaxKind.NothingKeyword));
             }
+            bool isNullable = type.GetDocumentationCommentId()?.StartsWith("T:System.Nullable{") == true;
+            if (isNullable)
+            {
+                var namedType = (INamedTypeSymbol)type;
+                type = namedType.TypeArguments[0];
+            }
             var result = GetLiteralExpressionCore(value, type);
             if (result != null)
             {
@@ -1476,6 +1482,14 @@ namespace Microsoft.DocAsCode.Metadata.ManagedReference
                     return SyntaxFactory.LiteralExpression(
                         SyntaxKind.NumericLiteralExpression,
                         SyntaxFactory.Literal((ulong)value));
+                case SpecialType.System_IntPtr:
+                    return SyntaxFactory.LiteralExpression(
+                        SyntaxKind.NumericLiteralExpression,
+                        SyntaxFactory.Literal((int)value));
+                case SpecialType.System_UIntPtr:
+                    return SyntaxFactory.LiteralExpression(
+                        SyntaxKind.NumericLiteralExpression,
+                        SyntaxFactory.Literal((uint)value));
                 case SpecialType.System_Decimal:
                     return SyntaxFactory.LiteralExpression(
                         SyntaxKind.NumericLiteralExpression,
